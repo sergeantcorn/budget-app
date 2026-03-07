@@ -101,12 +101,27 @@
         <div class="settings-info"><div class="settings-title">Cards</div><div class="settings-sub">Manage payment cards</div></div>
         <div class="settings-chevron">›</div>
       </div>
+      <div class="settings-item" onclick="showSubPage('admin')">
+        <div class="settings-icon">🔧</div>
+        <div class="settings-info"><div class="settings-title">Admin</div><div class="settings-sub">System administration</div></div>
+        <div class="settings-chevron">›</div>
+      </div>
       <div class="settings-item" onclick="doLogout()">
         <div class="settings-icon">🚪</div>
         <div class="settings-info"><div class="settings-title">Sign Out</div><div class="settings-sub">Sign out of your account</div></div>
         <div class="settings-chevron">›</div>
       </div>
     </div>
+  </div>
+
+  <div id="page-admin" class="page" style="display:none">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
+        <h1 style="font-size:22px">Admin</h1>
+      </div>
+    </div>
+    <div id="admin-content"></div>
   </div>
 
   <!-- Sub-pages -->
@@ -401,6 +416,7 @@
 <script src="js/bills.js"></script>
 <script src="js/history.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/admin.js"></script>
 <script src="js/modals-bill.js"></script>
 <script src="js/modals-budget.js"></script>
 

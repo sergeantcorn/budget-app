@@ -45,6 +45,7 @@ function showPage(page) {
   if (page === 'partitions') renderPartitions();
   if (page === 'accounts')   renderAccounts();
   if (page === 'cards')      renderCards();
+  if (page === 'admin')      renderAdmin();
 
   window.scrollTo(0, 0);
 }
