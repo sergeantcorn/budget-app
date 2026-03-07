@@ -2,6 +2,17 @@
 // NAV — page switching + data loading
 // ============================================================
 
+async function loadVersion() {
+  try {
+    const res  = await fetch('version.json?t=' + Date.now());
+    const data = await res.json();
+    const el   = document.getElementById('banner-version');
+    if (el && data.version) el.textContent = 'v' + data.version;
+  } catch(e) {
+    // silently fail — version just won't show
+  }
+}
+
 async function loadAllData() {
   const el = document.getElementById('budget-content');
   if (el) el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';

@@ -1,0 +1,72 @@
+name: Auto Version
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    # Don't run on commits made by this action itself
+    if: "!contains(github.event.head_commit.message, '[version bump]')"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Generate version
+        id: gen
+        run: |
+          # Date parts
+          YY=$(date -u +'%-y')
+          M=$(date -u +'%-m')
+          D=$(date -u +'%-d')
+
+          # Detect beta: look for <meta name="beta"> in index.html
+          if grep -q '<meta name="beta"' frontend/index.html; then
+            MAJOR=0
+          else
+            MAJOR=1
+          fi
+
+          # Read previous version.json
+          PREV_MAJOR=0
+          PREV_MINOR=0
+          if [ -f frontend/version.json ]; then
+            PREV_MAJOR=$(python3 -c "import json,sys; d=json.load(open('frontend/version.json')); print(d.get('major',0))")
+            PREV_MINOR=$(python3 -c "import json,sys; d=json.load(open('frontend/version.json')); print(d.get('minor',0))")
+          fi
+
+          # Reset minor to 0 if major changes (0 -> 1), otherwise increment
+          if [ "$MAJOR" -ne "$PREV_MAJOR" ]; then
+            MINOR=1
+          else
+            MINOR=$((PREV_MINOR + 1))
+          fi
+
+          VERSION="${MAJOR}.${YY}.${M}.${D}.${MINOR}"
+
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "MAJOR=$MAJOR"     >> $GITHUB_OUTPUT
+          echo "MINOR=$MINOR"     >> $GITHUB_OUTPUT
+
+          # Write version.json
+          cat > frontend/version.json << EOF
+          {
+            "version": "$VERSION",
+            "major": $MAJOR,
+            "minor": $MINOR,
+            "date": "$(date -u +'%Y-%m-%d')"
+          }
+          EOF
+
+      - name: Commit version.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/version.json
+          git commit -m "[version bump] ${{ steps.gen.outputs.VERSION }}" || echo "Nothing to commit"
+          git push
