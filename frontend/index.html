@@ -3,400 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Budget App</title>
-<style>
-/* ── TOKENS ────────────────────────────────────────────────── */
-:root {
-  --bg:       #0c0c10;
-  --surface:  #16161e;
-  --surface2: #1e1e28;
-  --surface3: #262632;
-  --border:   #2a2a38;
-  --accent:   #6c63ff;
-  --accent-glow: rgba(108,99,255,0.25);
-  --green:  #51cf66;
-  --red:    #ff6b6b;
-  --yellow: #ffd43b;
-  --orange: #ff922b;
-  --text:  #e8e8f2;
-  --text2: #a0a0c0;
-  --muted: #606080;
-  --radius:    18px;
-  --radius-sm: 14px;
-  --radius-xs: 10px;
-  --nav-h: 70px;
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --c-bills:         #a78bfa;
-  --c-groceries:     #f9a8d4;
-  --c-subscriptions: #6ee7b7;
-  --c-savings:       #fde68a;
-  --c-adhoc:         #7dd3fc;
-  --c-misc:          #c4b5fd;
-  --starling-bg1: #160d2a;
-  --starling-bg2: #1f1240;
-  --starling-border: rgba(105,53,211,0.55);
-  --monzo-bg1: #1c0a08;
-  --monzo-bg2: #2a100e;
-  --monzo-border: rgba(255,80,64,0.45);
-}
-
-/* ── RESET ─────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-html { font-size: 18px; }
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── GITHUB BANNER ─────────────────────────────────────────── */
-.github-banner {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-  background: linear-gradient(90deg, #24292e 0%, #2d333b 100%);
-  border-bottom: 1px solid #444c56;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 7px 16px; font-size: 12px; font-weight: 600;
-  color: #e6edf3; letter-spacing: 0.3px;
-}
-.github-banner svg { width: 16px; height: 16px; fill: #e6edf3; flex-shrink: 0; }
-.github-banner span { opacity: 0.55; font-weight: 400; margin-left: 4px; }
-/* Push content below the banner */
-body { padding-top: 32px; }
-
-/* ── LOGIN SCREEN ──────────────────────────────────────────── */
-#login-screen {
-  display: flex; align-items: center; justify-content: center;
-  min-height: calc(100vh - 32px); padding: 24px;
-}
-.login-box {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 32px 24px; width: 100%; max-width: 360px;
-}
-.login-box h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
-.login-box p { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
-.login-error { color: var(--red); font-size: 13px; margin-top: 12px; min-height: 18px; }
-
-/* ── PAGES ─────────────────────────────────────────────────── */
-#app { display: none; }
-.page {
-  display: none; width: 100%;
-  padding: 20px 16px calc(var(--nav-h) + 24px);
-  animation: fadeUp 0.2s ease;
-}
-.page.active { display: block; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-
-/* ── NAV ───────────────────────────────────────────────────── */
-nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  height: var(--nav-h);
-  background: rgba(12,12,16,0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  display: flex; z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.nav-btn {
-  flex: 1; padding: 10px 4px 8px;
-  background: none; border: none; color: var(--muted);
-  cursor: pointer; font-family: var(--font);
-  font-size: 12px; font-weight: 600;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  transition: color 0.15s; position: relative;
-}
-.nav-btn.active { color: var(--accent); }
-.nav-btn.active::before {
-  content: ''; position: absolute; top: 0; left: 20%; right: 20%;
-  height: 2px; background: var(--accent); border-radius: 0 0 3px 3px;
-}
-.nav-btn svg { width: 28px; height: 28px; stroke-width: 1.7; }
-
-/* ── TYPOGRAPHY ────────────────────────────────────────────── */
-.page-header { margin-bottom: 20px; padding-top: 6px; }
-.page-header h1 { font-size: 32px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 3px; }
-.page-header p { color: var(--text2); font-size: 16px; }
-.section-label {
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.2px; color: var(--muted); margin: 22px 0 10px;
-}
-.bills-subheading {
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--muted);
-  padding: 14px 0 10px; border-top: 1px solid var(--border); margin-top: 2px;
-}
-.bills-subheading:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-
-/* ── CARDS ─────────────────────────────────────────────────── */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; margin-bottom: 12px; }
-
-/* ── BUDGET HEADER ─────────────────────────────────────────── */
-.budget-header-row {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; margin-bottom: 18px; padding-top: 6px; gap: 10px;
-}
-.budget-header-row .header-text h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
-.budget-header-row .header-text p { color: var(--text2); font-size: 15px; margin-top: 2px; }
-.btn-save-new {
-  background: var(--accent); color: white; border: none;
-  border-radius: var(--radius-sm); padding: 12px 16px;
-  font-family: var(--font); font-size: 15px; font-weight: 700;
-  cursor: pointer; white-space: nowrap; flex-shrink: 0;
-  box-shadow: 0 4px 16px var(--accent-glow);
-  display: flex; align-items: center; gap: 7px;
-}
-.btn-save-new:active { transform: scale(0.97); }
-
-/* ── DATE BAR ──────────────────────────────────────────────── */
-.date-bar {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.date-bar .dates { font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.date-bar .arrow { color: var(--muted); font-size: 13px; }
-
-/* ── INCOME CARD ───────────────────────────────────────────── */
-.income-card {
-  background: linear-gradient(135deg, #1a1838 0%, #0f1020 100%);
-  border: 1px solid rgba(108,99,255,0.28);
-  border-radius: var(--radius); padding: 20px 18px; margin-bottom: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.income-card .ic-left .label { font-size: 11px; font-weight: 700; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.8px; }
-.income-card .ic-left .value { font-size: 46px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
-.income-card .ic-left .value span { font-size: 55%; opacity: 0.45; margin-right: 2px; font-weight: 400; }
-
-/* ── BUTTONS ───────────────────────────────────────────────── */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 6px; padding: 15px 20px; border: none;
-  border-radius: var(--radius-sm); font-family: var(--font);
-  font-weight: 700; font-size: 17px; cursor: pointer; transition: all 0.15s;
-}
-.btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 20px var(--accent-glow); }
-.btn-primary:active { transform: scale(0.97); opacity: 0.9; }
-.btn-danger { background: rgba(255,107,107,0.1); color: var(--red); border: 1px solid rgba(255,107,107,0.3); }
-.btn-success { background: rgba(81,207,102,0.1); color: var(--green); border: 1px solid rgba(81,207,102,0.3); }
-.btn-sm { padding: 10px 16px; font-size: 14px; border-radius: var(--radius-xs); }
-.btn-ghost {
-  background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text2); border-radius: var(--radius-xs);
-  padding: 10px 16px; font-family: var(--font);
-  font-size: 14px; font-weight: 600; cursor: pointer;
-  white-space: nowrap; transition: all 0.15s;
-}
-.btn-ghost:active { border-color: var(--accent); color: var(--accent); }
-.btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
-.btn-row .btn { flex: 1; }
-
-/* ── BILL ROWS ─────────────────────────────────────────────── */
-.bill-row { display: flex; align-items: center; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--border); }
-.bill-row:last-child { border-bottom: none; }
-.space-pip { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.bill-info { flex: 1; min-width: 0; }
-.bill-name { font-weight: 600; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bill-meta { font-size: 14px; color: var(--muted); margin-top: 3px; }
-.bill-amounts { text-align: right; flex-shrink: 0; }
-.bill-amounts .amt { font-weight: 700; font-size: 19px; }
-.bill-amounts .var { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.bill-edit-btn {
-  background: var(--surface3); border: 1px solid var(--border);
-  color: var(--text2); border-radius: var(--radius-xs);
-  padding: 9px 14px; font-size: 13px; font-family: var(--font);
-  font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap;
-}
-.bill-edit-btn:active { border-color: var(--accent); color: var(--accent); }
-
-/* ── MANAGE ROWS ───────────────────────────────────────────── */
-.manage-row { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border); }
-.manage-row:last-child { border-bottom: none; }
-.manage-left { flex: 1; min-width: 0; }
-.manage-name { font-weight: 600; font-size: 18px; }
-.manage-meta { font-size: 13px; color: var(--muted); margin-top: 3px; }
-.manage-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-.manage-amount { font-weight: 800; font-size: 21px; letter-spacing: -0.5px; }
-.manage-amount-var { font-size: 12px; color: var(--muted); }
-.manage-actions { display: flex; gap: 6px; align-items: center; }
-.manage-info { flex: 1; }
-
-/* ── ACCOUNT CARDS ─────────────────────────────────────────── */
-.acc-card { border-radius: var(--radius); padding: 20px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-.acc-card.starling { background: linear-gradient(135deg, #0d1a24 0%, #0f2535 60%, #0a1e30 100%); border: 1px solid rgba(0,180,160,0.3); }
-.acc-card.monzo    { background: linear-gradient(135deg, #0d1a24 0%, #0f2535 60%, #0a1e30 100%); border: 1px solid rgba(0,180,160,0.3); }
-.acc-card.default  { background: var(--surface2); border: 1px solid var(--border); }
-.acc-left { display: flex; align-items: center; gap: 16px; }
-.acc-logo { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: transparent; }
-.acc-card.starling .acc-logo { background: #6935d3; padding: 6px; }
-.acc-card.monzo    .acc-logo { background: transparent; padding: 4px; }
-.acc-card.default  .acc-logo { background: rgba(255,255,255,0.06); }
-.acc-logo svg, .acc-logo img { width: 100%; height: 100%; display: block; }
-.acc-name { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 3px; }
-.acc-card.starling .acc-name { color: #ffffff; }
-.acc-card.monzo    .acc-name { color: #ffffff; }
-.acc-card.default  .acc-name { color: var(--text); }
-.acc-right { text-align: right; }
-.acc-main { font-size: 24px; font-weight: 700; }
-.acc-var { font-size: 12px; opacity: 0.55; margin-top: 4px; }
-
-/* ── POTS ──────────────────────────────────────────────────── */
-.pot-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
-.pot-row:last-child { border-bottom: none; }
-.pot-bar { width: 4px; height: 36px; border-radius: 4px; flex-shrink: 0; }
-.pot-info { flex: 1; }
-.pot-name { font-weight: 600; font-size: 16px; }
-.pot-bank { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.pot-amounts { text-align: right; }
-.pot-main { font-weight: 700; font-size: 17px; }
-.pot-var { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-/* ── TOTALS ────────────────────────────────────────────────── */
-.totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.total-cell { background: var(--surface2); border-radius: var(--radius-xs); padding: 12px 14px; }
-.tc-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-.tc-val { font-size: 22px; font-weight: 700; }
-.tc-val.pos { color: var(--green); }
-.tc-val.neg { color: var(--red); }
-.month-type-row { display: flex; gap: 8px; }
-.mt-badge { flex: 1; text-align: center; padding: 10px; border-radius: var(--radius-xs); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
-.mt-badge.HIGH     { background: rgba(81,207,102,0.12);  color: var(--green);  border: 1px solid rgba(81,207,102,0.25); }
-.mt-badge.AVERAGE  { background: rgba(255,212,59,0.12);  color: var(--yellow); border: 1px solid rgba(255,212,59,0.25); }
-.mt-badge.LOW      { background: rgba(255,146,43,0.12);  color: var(--orange); border: 1px solid rgba(255,146,43,0.25); }
-.mt-badge.NEGATIVE { background: rgba(255,107,107,0.12); color: var(--red);    border: 1px solid rgba(255,107,107,0.25); }
-
-/* ── BADGE ─────────────────────────────────────────────────── */
-.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
-.badge.Active    { background: rgba(81,207,102,0.12); color: var(--green); }
-.badge.Inactive  { background: rgba(255,146,43,0.12); color: var(--orange); }
-.badge.Cancelled { background: rgba(255,107,107,0.12); color: var(--red); }
-.badge.oneoff    { background: rgba(108,99,255,0.12); color: var(--accent); }
-
-/* ── FAB ───────────────────────────────────────────────────── */
-.fab {
-  position: fixed; bottom: calc(var(--nav-h) + 14px); right: 16px;
-  width: 58px; height: 58px; background: var(--accent); color: white;
-  border: none; border-radius: 50%; font-size: 26px; cursor: pointer;
-  box-shadow: 0 4px 24px var(--accent-glow);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.15s; z-index: 99;
-}
-.fab:active { transform: scale(0.92); }
-
-/* ── MODAL ─────────────────────────────────────────────────── */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; align-items: flex-end; justify-content: center; }
-.modal-overlay.open { display: flex; animation: fadeIn 0.18s ease; }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-.modal {
-  background: var(--surface); border-radius: 24px 24px 0 0;
-  padding: 24px 18px 20px;
-  padding-bottom: max(28px, calc(env(safe-area-inset-bottom) + 20px));
-  width: 100%; max-height: 92vh; overflow-y: auto;
-  animation: slideUp 0.26s cubic-bezier(0.32, 0.72, 0, 1);
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
-.modal-handle { width: 38px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
-.modal h2 { font-size: 22px; font-weight: 700; margin-bottom: 18px; letter-spacing: -0.3px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.modal-actions .btn { flex: 1; }
-
-/* ── FORMS ─────────────────────────────────────────────────── */
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text);
-  padding: 15px 16px; font-family: var(--font); font-size: 17px;
-  transition: border-color 0.15s; -webkit-appearance: none; font-weight: 500;
-}
-.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
-.form-row { display: grid; grid-template-columns: 1fr; gap: 0; }
-
-/* ── LOADING / EMPTY / TOAST ───────────────────────────────── */
-.loading { display: flex; align-items: center; justify-content: center; padding: 60px 20px; color: var(--muted); gap: 12px; font-size: 15px; font-weight: 500; }
-.spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 15px; line-height: 1.6; }
-.toast { position: fixed; bottom: calc(var(--nav-h) + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--surface2); border: 1px solid var(--border); border-radius: 24px; padding: 11px 20px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.22s; z-index: 400; white-space: nowrap; pointer-events: none; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: var(--green); color: var(--green); }
-.toast.error   { border-color: var(--red);   color: var(--red); }
-
-/* ── HISTORY ───────────────────────────────────────────────── */
-.history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
-.history-header { padding: 16px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-.history-header:active { background: var(--surface2); }
-.history-dates { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
-.history-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
-.history-chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
-.history-chevron.open { transform: rotate(180deg); }
-.history-body { display: none; border-top: 1px solid var(--border); }
-.history-body.open { display: block; }
-.history-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px; border-bottom: 1px solid var(--border); }
-.hs-cell { background: var(--surface2); border-radius: var(--radius-xs); padding: 11px 12px; }
-.hs-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.hs-val { font-size: 18px; font-weight: 700; }
-.hs-val.neg { color: var(--red); }
-.hs-val.pos { color: var(--green); }
-.history-bills { padding: 0 14px 14px; }
-.history-action-btn { background: none; border: none; cursor: pointer; padding: 8px; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.history-action-btn.delete { color: var(--red); }
-.history-action-btn.edit   { color: var(--muted); }
-.history-action-btn:active { background: var(--surface3); }
-
-/* ── SETTINGS ──────────────────────────────────────────────── */
-.settings-item { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
-.settings-item:last-child { border-bottom: none; }
-.settings-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.settings-info { flex: 1; }
-.settings-title { font-weight: 600; font-size: 18px; }
-.settings-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
-.settings-chevron { color: var(--muted); font-size: 18px; }
-
-/* ── MISC ──────────────────────────────────────────────────── */
-.divider { height: 1px; background: var(--border); margin: 16px 0; }
-.pill-tabs { display: flex; gap: 4px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 14px; }
-.pill-tab { flex: 1; padding: 13px 4px; text-align: center; font-size: 16px; font-weight: 600; color: var(--muted); border-radius: var(--radius-xs); cursor: pointer; transition: all 0.15s; }
-.pill-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
-
-/* ── CONFIRM DIALOG ────────────────────────────────────────── */
-.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
-.confirm-overlay.open { display: flex; }
-.confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 22px; max-width: 320px; width: 100%; text-align: center; }
-.confirm-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-.confirm-box p { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
-.confirm-actions { display: flex; gap: 10px; }
-.confirm-actions .btn { flex: 1; }
-
-/* ── DESKTOP ───────────────────────────────────────────────── */
-@media (min-width: 700px) {
-  html { font-size: 17px; }
-  .page { max-width: 680px; margin: 0 auto; padding: 28px 24px calc(var(--nav-h) + 32px); }
-  .page-header h1 { font-size: 32px; }
-  .page-header p  { font-size: 15px; }
-  .budget-header-row .header-text h1 { font-size: 30px; }
-  .budget-header-row .header-text p  { font-size: 14px; }
-  .btn-save-new { font-size: 14px; padding: 13px 18px; }
-  .income-card .ic-left .value { font-size: 44px; }
-  .date-bar .dates { font-size: 18px; }
-  .bill-name { font-size: 15px; }
-  .bill-amounts .amt { font-size: 16px; }
-  .form-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .acc-name { font-size: 20px; }
-  .acc-main { font-size: 20px; }
-  .total-cell .tc-val { font-size: 20px; }
-  .history-dates { font-size: 15px; }
-  .hs-val { font-size: 15px; }
-  .modal { max-width: 620px; }
-  .modal h2 { font-size: 22px; }
-  .login-box { padding: 40px 32px; }
-}
-</style>
+<title>Moneaze</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -407,10 +15,12 @@ nav {
   <span>budget.benja.minmcdonagh.com</span>
 </div>
 
-<!-- Login Screen -->
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-box">
-    <h1>💰 Budget</h1>
+    <h1>Moneaze</h1>
     <p>Sign in to your account</p>
     <div class="form-group">
       <label>Username</label>
@@ -425,147 +35,140 @@ nav {
   </div>
 </div>
 
-<!-- Main App -->
+<!-- ═══════════════════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════════════════ -->
 <div id="app">
 
-<!-- PAGES -->
-<div id="page-budget" class="page active">
-  <div class="budget-header-row">
-    <div class="header-text">
-      <h1>Active Budget</h1>
-      <p id="budget-subtitle">Your current period</p>
+  <!-- PAGES (content rendered by JS) -->
+  <div id="page-budget" class="page active">
+    <div class="budget-header-row">
+      <div class="header-text">
+        <h1>Active Budget</h1>
+        <p id="budget-subtitle">Your current period</p>
+      </div>
+      <button class="btn-save-new" onclick="openSaveModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+        Save & Create New
+      </button>
     </div>
-    <button class="btn-save-new" onclick="openSaveModal()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
-      Save & Create New
+    <div id="budget-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+
+  <div id="page-bills" class="page">
+    <div class="page-header">
+      <h1>Regular Bills</h1>
+      <p>Manage your recurring payments</p>
+    </div>
+    <div class="pill-tabs">
+      <div class="pill-tab active" onclick="setBillsTab('all')">All</div>
+      <div class="pill-tab" onclick="setBillsTab('monthly')">Monthly</div>
+      <div class="pill-tab" onclick="setBillsTab('weekly')">Weekly</div>
+      <div class="pill-tab" onclick="setBillsTab('other')">Other</div>
+    </div>
+    <div id="bills-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    <button class="fab" onclick="openBillModal()">+</button>
+  </div>
+
+  <div id="page-history" class="page">
+    <div class="page-header">
+      <h1>History</h1>
+      <p>Your saved budgets</p>
+    </div>
+    <div id="history-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+
+  <div id="page-settings" class="page">
+    <div class="page-header">
+      <h1>Settings</h1>
+      <p>Manage your accounts and spaces</p>
+    </div>
+    <div class="section-label">Manage</div>
+    <div class="card">
+      <div class="settings-item" onclick="showSubPage('partitions')">
+        <div class="settings-icon">💰</div>
+        <div class="settings-info"><div class="settings-title">Spaces & Pots</div><div class="settings-sub">Manage account partitions</div></div>
+        <div class="settings-chevron">›</div>
+      </div>
+      <div class="settings-item" onclick="showSubPage('accounts')">
+        <div class="settings-icon">🏦</div>
+        <div class="settings-info"><div class="settings-title">Bank Accounts</div><div class="settings-sub">Manage linked banks</div></div>
+        <div class="settings-chevron">›</div>
+      </div>
+      <div class="settings-item" onclick="showSubPage('cards')">
+        <div class="settings-icon">💳</div>
+        <div class="settings-info"><div class="settings-title">Cards</div><div class="settings-sub">Manage payment cards</div></div>
+        <div class="settings-chevron">›</div>
+      </div>
+      <div class="settings-item" onclick="doLogout()">
+        <div class="settings-icon">🚪</div>
+        <div class="settings-info"><div class="settings-title">Sign Out</div><div class="settings-sub">Sign out of your account</div></div>
+        <div class="settings-chevron">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-pages -->
+  <div id="page-partitions" class="page" style="display:none">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
+        <h1 style="font-size:22px">Spaces & Pots</h1>
+      </div>
+    </div>
+    <div id="partitions-content"></div>
+    <button class="fab" onclick="openPartitionModal()">+</button>
+  </div>
+
+  <div id="page-accounts" class="page" style="display:none">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
+        <h1 style="font-size:22px">Bank Accounts</h1>
+      </div>
+    </div>
+    <div id="accounts-content"></div>
+    <button class="fab" onclick="openAccountModal()">+</button>
+  </div>
+
+  <div id="page-cards" class="page" style="display:none">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
+        <h1 style="font-size:22px">Cards</h1>
+      </div>
+    </div>
+    <div id="cards-content"></div>
+    <button class="fab" onclick="openCardModal()">+</button>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <button class="nav-btn active" onclick="showPage('budget')" id="nav-budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Budget
     </button>
-  </div>
-  <div id="budget-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-</div>
-
-<div id="page-bills" class="page">
-  <div class="page-header">
-    <h1>Regular Bills</h1>
-    <p>Manage your recurring payments</p>
-  </div>
-  <div class="pill-tabs">
-    <div class="pill-tab active" onclick="setBillsTab('all')">All</div>
-    <div class="pill-tab" onclick="setBillsTab('monthly')">Monthly</div>
-    <div class="pill-tab" onclick="setBillsTab('weekly')">Weekly</div>
-    <div class="pill-tab" onclick="setBillsTab('other')">Other</div>
-  </div>
-  <div id="bills-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-  <button class="fab" onclick="openBillModal()">+</button>
-</div>
-
-<div id="page-history" class="page">
-  <div class="page-header">
-    <h1>History</h1>
-    <p>Your saved budgets</p>
-  </div>
-  <div id="history-content"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-</div>
-
-<div id="page-settings" class="page">
-  <div class="page-header">
-    <h1>Settings</h1>
-    <p>Manage your accounts and spaces</p>
-  </div>
-  <div class="section-label">Manage</div>
-  <div class="card">
-    <div class="settings-item" onclick="showSubPage('partitions')">
-      <div class="settings-icon">💰</div>
-      <div class="settings-info">
-        <div class="settings-title">Spaces & Pots</div>
-        <div class="settings-sub">Manage account partitions</div>
-      </div>
-      <div class="settings-chevron">›</div>
-    </div>
-    <div class="settings-item" onclick="showSubPage('accounts')">
-      <div class="settings-icon">🏦</div>
-      <div class="settings-info">
-        <div class="settings-title">Bank Accounts</div>
-        <div class="settings-sub">Manage linked banks</div>
-      </div>
-      <div class="settings-chevron">›</div>
-    </div>
-    <div class="settings-item" onclick="showSubPage('cards')">
-      <div class="settings-icon">💳</div>
-      <div class="settings-info">
-        <div class="settings-title">Cards</div>
-        <div class="settings-sub">Manage payment cards</div>
-      </div>
-      <div class="settings-chevron">›</div>
-    </div>
-    <div class="settings-item" onclick="doLogout()" style="cursor:pointer">
-      <div class="settings-icon">🚪</div>
-      <div class="settings-info">
-        <div class="settings-title">Sign Out</div>
-        <div class="settings-sub">Sign out of your account</div>
-      </div>
-      <div class="settings-chevron">›</div>
-    </div>
-  </div>
-</div>
-
-<!-- SUB PAGES -->
-<div id="page-partitions" class="page" style="display:none">
-  <div class="page-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
-      <h1 style="font-size:22px">Spaces & Pots</h1>
-    </div>
-  </div>
-  <div id="partitions-content"></div>
-  <button class="fab" onclick="openPartitionModal()">+</button>
-</div>
-
-<div id="page-accounts" class="page" style="display:none">
-  <div class="page-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
-      <h1 style="font-size:22px">Bank Accounts</h1>
-    </div>
-  </div>
-  <div id="accounts-content"></div>
-  <button class="fab" onclick="openAccountModal()">+</button>
-</div>
-
-<div id="page-cards" class="page" style="display:none">
-  <div class="page-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-ghost btn-sm" onclick="showPage('settings')">← Back</button>
-      <h1 style="font-size:22px">Cards</h1>
-    </div>
-  </div>
-  <div id="cards-content"></div>
-  <button class="fab" onclick="openCardModal()">+</button>
-</div>
-
-<!-- NAV -->
-<nav>
-  <button class="nav-btn active" onclick="showPage('budget')" id="nav-budget">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Budget
-  </button>
-  <button class="nav-btn" onclick="showPage('bills')" id="nav-bills">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    Bills
-  </button>
-  <button class="nav-btn" onclick="showPage('history')" id="nav-history">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-    History
-  </button>
-  <button class="nav-btn" onclick="showPage('settings')" id="nav-settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    Settings
-  </button>
-</nav>
+    <button class="nav-btn" onclick="showPage('bills')" id="nav-bills">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bills
+    </button>
+    <button class="nav-btn" onclick="showPage('history')" id="nav-history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+      History
+    </button>
+    <button class="nav-btn" onclick="showPage('settings')" id="nav-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
 
 </div><!-- /app -->
 
-<!-- MODALS -->
-<!-- Date Modal -->
+<!-- ═══════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Edit Period / Income -->
 <div class="modal-overlay" id="modal-dates">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -580,7 +183,7 @@ nav {
   </div>
 </div>
 
-<!-- Bill Modal -->
+<!-- Add / Edit Bill -->
 <div class="modal-overlay" id="modal-bill">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -619,7 +222,7 @@ nav {
   </div>
 </div>
 
-<!-- One-Off Modal -->
+<!-- Add / Edit One-Off -->
 <div class="modal-overlay" id="modal-oneoff">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -648,7 +251,7 @@ nav {
   </div>
 </div>
 
-<!-- Budget Bill Edit Modal -->
+<!-- Edit Bill for This Period -->
 <div class="modal-overlay" id="modal-budget-bill">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -668,7 +271,52 @@ nav {
   </div>
 </div>
 
-<!-- Partition Modal -->
+<!-- Save Budget -->
+<div class="modal-overlay" id="modal-save">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>💾 Save Budget</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5">Give this budget a name and note before saving. Once saved, you'll set up a fresh budget.</p>
+    <div class="form-group"><label>Name (optional)</label><input type="text" id="save-name" placeholder="e.g. 20 Mar 26 – 20 Apr 26"></div>
+    <div class="form-group"><label>Note (optional)</label><textarea id="save-note" rows="3" placeholder="Any notes about this period..." style="resize:none"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-save')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAndProceedToNew()">Save & Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Budget -->
+<div class="modal-overlay" id="modal-new-budget">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>🗓 New Budget</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5">Set the dates and income for your new budget period.</p>
+    <div class="form-group"><label>Start Date</label><input type="date" id="new-start"></div>
+    <div class="form-group"><label>End Date</label><input type="date" id="new-end"></div>
+    <div class="form-group"><label>Income (£)</label><input type="number" id="new-income" step="0.01"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="width:100%" onclick="confirmNewBudget()">Start New Budget</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit History -->
+<div class="modal-overlay" id="modal-edit-history">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Edit Budget</h2>
+    <input type="hidden" id="edit-history-id">
+    <div class="form-group"><label>Name</label><input type="text" id="edit-history-name" placeholder="Budget name"></div>
+    <div class="form-group"><label>Note</label><textarea id="edit-history-note" rows="3" placeholder="Notes..." style="resize:none"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-history')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveHistoryMeta()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Space -->
 <div class="modal-overlay" id="modal-partition">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -692,7 +340,7 @@ nav {
   </div>
 </div>
 
-<!-- Account Modal -->
+<!-- Add / Edit Account -->
 <div class="modal-overlay" id="modal-account">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -707,7 +355,7 @@ nav {
   </div>
 </div>
 
-<!-- Card Modal -->
+<!-- Add / Edit Card -->
 <div class="modal-overlay" id="modal-card">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -726,51 +374,6 @@ nav {
   </div>
 </div>
 
-<!-- Save Budget Modal -->
-<div class="modal-overlay" id="modal-save">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>💾 Save Budget</h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5">Give this budget a name and note before saving. Once saved, you'll set up a fresh budget.</p>
-    <div class="form-group"><label>Name (optional)</label><input type="text" id="save-name" placeholder="e.g. 20 Mar 26 – 20 Apr 26"></div>
-    <div class="form-group"><label>Note (optional)</label><textarea id="save-note" rows="3" placeholder="Any notes about this period..." style="resize:none"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-save')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAndProceedToNew()">Save & Continue</button>
-    </div>
-  </div>
-</div>
-
-<!-- New Budget Modal -->
-<div class="modal-overlay" id="modal-new-budget">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>🗓 New Budget</h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5">Set the dates and income for your new budget period.</p>
-    <div class="form-group"><label>Start Date</label><input type="date" id="new-start"></div>
-    <div class="form-group"><label>End Date</label><input type="date" id="new-end"></div>
-    <div class="form-group"><label>Income (£)</label><input type="number" id="new-income" step="0.01"></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" style="width:100%" onclick="confirmNewBudget()">Start New Budget</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit History Modal -->
-<div class="modal-overlay" id="modal-edit-history">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>Edit Budget</h2>
-    <input type="hidden" id="edit-history-id">
-    <div class="form-group"><label>Name</label><input type="text" id="edit-history-name" placeholder="Budget name"></div>
-    <div class="form-group"><label>Note</label><textarea id="edit-history-note" rows="3" placeholder="Notes..." style="resize:none"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-edit-history')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveHistoryMeta()">Save</button>
-    </div>
-  </div>
-</div>
-
 <!-- Confirm Dialog -->
 <div class="confirm-overlay" id="confirm-dialog">
   <div class="confirm-box">
@@ -785,971 +388,33 @@ nav {
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS — load order matters
+═══════════════════════════════════════════════════════════ -->
+<script src="js/state.js"></script>
+<script src="js/api.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/budget.js"></script>
+<script src="js/bills.js"></script>
+<script src="js/history.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/modals-bill.js"></script>
+<script src="js/modals-budget.js"></script>
+
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const API = 'https://budget-app-worker.ben-j-mcdonagh.workers.dev';
-
-// ============================================================
-// STATE
-// ============================================================
-let appData = null;
-let historyData = null;
-let currentPage = 'budget';
-let billsFilter = 'all';
-let budgetBills = [];
-let pendingConfirm = null;
-let authToken = localStorage.getItem('budget_token') || null;
-
-const bankLogos = {
-  'Starling': `<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1543 1544"><style>.s0{fill:#6935d3}.s1{fill:#ffffff}</style><g><path fill-rule="evenodd" class="s0" d="m771.4 1543c-426.6 0-771.4-344.8-771.4-771.5 0-426.6 344.8-771.4 771.4-771.4 426.6 0 771.4 344.8 771.4 771.4 0 426.7-344.8 771.5-771.4 771.5z"/><path fill-rule="evenodd" class="s1" d="m464.5 771.6v-42.9c0-266.3 216.6-482.9 482.9-482.9h42.8v175.1h-42.8c-169.7 0-307.8 138.1-307.8 307.8v42.9z"/><path fill-rule="evenodd" class="s1" d="m1078.3 771.5v42.9c0 266.2-216.6 482.9-482.9 482.9h-42.8v-175.1h42.8c169.7 0 307.8-138.1 307.8-307.8v-42.9z"/></g></svg>`,
-  'Monzo': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M63.997 45.16c0 .786-.31 1.54-.866 2.095l-13.27 13.27c-.34.337-.848.438-1.3.255s-.73-.614-.73-1.092V29.953l15.977-15.888H64z" fill="#e34b5f"/><path d="M53.407 3.475c-.463-.463-1.213-.463-1.676 0L32 23.205h-.274v22.27l.274.585 31.996-31.997z" fill="#e7ce9c"/><path d="M0 45.16c-.001.786.31 1.54.866 2.096l13.27 13.27c.34.337.848.438 1.3.255s-.73-.614-.73-1.092V29.953L.184 14.065H0z" fill="#1e7889"/><path d="M12.266 3.475c-.463-.463-1.213-.463-1.676 0L0 14.065l31.998 32V23.207z" fill="#97baa6"/></svg>`
-};
-
-// ============================================================
-// API HELPER
-// ============================================================
-async function api(method, path, body) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' }
-  };
-  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + path, opts);
-  const data = await res.json();
-  if (res.status === 401) { doLogout(); return null; }
-  return data;
-}
-
-// ============================================================
-// AUTH
-// ============================================================
-async function doLogin() {
-  const username = document.getElementById('login-username').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-
-  if (!username || !password) { errEl.textContent = 'Please enter username and password'; return; }
-
-  const btn = document.querySelector('#login-screen .btn-primary');
-  btn.textContent = 'Signing in...'; btn.disabled = true;
-
-  const data = await fetch(API + '/api/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  }).then(r => r.json()).catch(() => null);
-
-  btn.textContent = 'Sign In'; btn.disabled = false;
-
-  if (!data || data.error) {
-    errEl.textContent = data?.error || 'Login failed. Check your credentials.';
-    return;
-  }
-
-  authToken = data.token;
-  localStorage.setItem('budget_token', authToken);
-  showApp();
-}
-
-document.getElementById('login-password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-
-function doLogout() {
-  authToken = null;
-  localStorage.removeItem('budget_token');
-  appData = null;
-  historyData = null;
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-password').value = '';
-}
-
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  loadAllData();
-}
-
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('load', () => {
-  if (authToken) {
-    showApp();
-  }
-  // else login screen is already visible
-});
-
-async function loadAllData() {
-  const el = document.getElementById('budget-content');
-  if (el) el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-
-  const data = await api('GET', '/api/data');
-  if (!data) return;
-
-  appData = data;
-  renderBudget();
-  if (currentPage === 'bills') renderBills();
-  else if (currentPage === 'history') loadHistory();
-  else if (currentPage === 'settings') renderSettingsSubPage();
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = ''; });
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-  const pageEl = document.getElementById('page-' + page);
-  pageEl.classList.add('active');
-  pageEl.style.display = 'block';
-
-  const navBtn = document.getElementById('nav-' + page);
-  if (navBtn) navBtn.classList.add('active');
-
-  currentPage = page;
-
-  if (page === 'budget') renderBudget();
-  if (page === 'bills') renderBills();
-  if (page === 'history') loadHistory();
-  if (page === 'partitions') renderPartitions();
-  if (page === 'accounts') renderAccounts();
-  if (page === 'cards') renderCards();
-
-  window.scrollTo(0, 0);
-}
-
-function showSubPage(name) { showPage(name); }
-
-// ============================================================
-// FORMAT
-// ============================================================
-function fmt(n) {
-  return '£' + Math.abs(Number(n)||0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtSigned(n) {
-  const num = Number(n) || 0;
-  return (num < 0 ? '-£' : '£') + Math.abs(num).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtDate(d) {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-function fmtDateInput(d) { return d ? d.substring(0, 10) : ''; }
-function fmtDateShort(d) {
-  if (!d) return '';
-  const date = new Date(d + 'T00:00:00');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${date.getDate()} ${months[date.getMonth()]} ${String(date.getFullYear()).slice(2)}`;
-}
-function spaceColor(space) {
-  return { Bills:'var(--c-bills)', Groceries:'var(--c-groceries)', Subscriptions:'var(--c-subscriptions)', Savings:'var(--c-savings)', Adhoc:'var(--c-adhoc)', Misc:'var(--c-misc)' }[space] || 'var(--muted)';
-}
-function accountColor(bank) {
-  const b = (bank||'').toLowerCase();
-  if (b === 'starling') return 'starling';
-  if (b === 'monzo') return 'monzo';
-  return 'default';
-}
-
-// ============================================================
-// BUDGET CALCULATION ENGINE
-// ============================================================
-function calcBills(payments, startDate, endDate, overrides) {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const results = [];
-
-  payments.forEach(p => {
-    if (p.status === 'Cancelled' || p.status === 'Inactive' || p.status === 'Deactivated') return;
-    if (!p.amount || Number(p.amount) === 0) return;
-    const override = overrides && overrides[p.id] ? overrides[p.id] : {};
-    if (override.excluded) return;
-    const amount = override.amount !== undefined ? override.amount : Number(p.amount);
-    const variation = Number(p.variation) || 0;
-    const date = p.date || 'N/A';
-    const sched = p.schedule;
-    let calcAmount = amount;
-    let include = false;
-
-    if (sched === 'Daily') {
-      const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
-      calcAmount = amount * days; include = true;
-    } else if (sched === 'Weekly') {
-      const dayName = date === 'N/A' ? 'Monday' : date;
-      const count = countWeekdayOccurrences(start, end, dayName);
-      calcAmount = amount * count; include = count > 0;
-    } else if (sched === 'Monthly') {
-      if (date === 'N/A' || date === 'All') { include = true; calcAmount = amount; }
-      else {
-        const dayNum = extractDayNum(date);
-        if (dayNum) { const { count, included } = countMonthlyOccurrences(start, end, dayNum); include = included; calcAmount = amount * count; }
-      }
-    } else if (sched === 'Yearly') {
-      if (date === 'N/A' || date === 'All') { include = true; calcAmount = amount; }
-      else { const { count, included } = countYearlyOccurrences(start, end, date); include = included; calcAmount = amount * count; }
-    }
-
-    if (!include) return;
-    let payFrom = p.linked_card || '';
-    if (payFrom === 'None') payFrom = 'Main';
-    if (payFrom === 'N/A') payFrom = 'None';
-    results.push({ payment_id: p.id, name: override.name || p.name, bank: p.account || '', space: override.space || p.space || '', amount: calcAmount, variation, type: p.type || '', pay_from: payFrom, is_one_off: false });
-  });
-  return results;
-}
-
-function countWeekdayOccurrences(start, end, dayName) {
-  const days = { Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6, Sunday:0 };
-  const target = days[dayName] !== undefined ? days[dayName] : 1;
-  let count = 0;
-  const cur = new Date(start);
-  while (cur <= end) { if (cur.getDay() === target) count++; cur.setDate(cur.getDate() + 1); }
-  return count;
-}
-
-function countMonthlyOccurrences(start, end, dayNum) {
-  let count = 0; let included = false;
-  const cur = new Date(start.getFullYear(), start.getMonth(), dayNum);
-  if (cur < start) cur.setMonth(cur.getMonth() + 1);
-  while (cur <= end) { count++; included = true; cur.setMonth(cur.getMonth() + 1); }
-  return { count: Math.max(count, included ? 1 : 0), included };
-}
-
-function countYearlyOccurrences(start, end, dateStr) {
-  const dayNum = extractDayNum(dateStr);
-  const monthName = extractMonthName(dateStr);
-  if (!dayNum || !monthName) return { count: 0, included: false };
-  const monthMap = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11, January:0, February:1, March:2, April:3, June:5, July:6, August:7, September:8, October:9, November:10, December:11 };
-  const month = monthMap[monthName];
-  if (month === undefined) return { count: 0, included: false };
-  let count = 0; let included = false; let year = start.getFullYear();
-  while (true) {
-    const d = new Date(year, month, dayNum);
-    if (d > end) break;
-    if (d >= start) { count++; included = true; }
-    year++; if (year > end.getFullYear() + 1) break;
-  }
-  return { count: Math.max(count, 0), included };
-}
-
-function extractDayNum(str) { if (!str) return null; const m = str.match(/(\d+)/); return m ? parseInt(m[1]) : null; }
-function extractMonthName(str) { if (!str) return null; const m = str.match(/([A-Za-z]+)/); return m ? m[1] : null; }
-
-function calcSummary(bills, oneoffs, income) {
-  const allBills = [...bills, ...oneoffs];
-  const partitions = appData ? appData.accountPartitions : [];
-  const accounts = appData ? appData.accounts : [];
-  const spaceOrder = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
-  const pots = {};
-  spaceOrder.forEach(s => { pots[s] = { amount: 0, withVar: 0, bank: '' }; });
-  allBills.forEach(b => {
-    const space = b.space || 'Misc';
-    if (!pots[space]) pots[space] = { amount: 0, withVar: 0, bank: '' };
-    pots[space].amount += Number(b.amount) || 0;
-    pots[space].withVar += (Number(b.amount) || 0) + (Number(b.variation) || 0);
-    if (!pots[space].bank) pots[space].bank = b.bank || '';
-  });
-  partitions.forEach(p => { if (pots[p.partition_name]) pots[p.partition_name].bank = p.bank; });
-  const accountTotals = {};
-  accounts.forEach(a => { accountTotals[a.bank] = { amount: 0, withVar: 0 }; });
-  allBills.forEach(b => {
-    const bank = b.bank || '';
-    if (bank && accountTotals[bank] !== undefined) {
-      accountTotals[bank].amount += Number(b.amount) || 0;
-      accountTotals[bank].withVar += (Number(b.amount) || 0) + (Number(b.variation) || 0);
-    }
-  });
-  const potTotal = Object.values(pots).reduce((s, p) => s + p.amount, 0);
-  const potTotalWithVar = Object.values(pots).reduce((s, p) => s + p.withVar, 0);
-  return { pots, accountTotals, potTotal, potTotalWithVar, leftOver: income - potTotal, leftOverWithVar: income - potTotalWithVar };
-}
-
-function getMonthType(leftOver) {
-  if (leftOver < 0) return 'NEGATIVE';
-  if (leftOver < 200) return 'LOW';
-  if (leftOver <= 400) return 'AVERAGE';
-  return 'HIGH';
-}
-
-// ============================================================
-// BUDGET PAGE
-// ============================================================
-function renderBudget() {
-  if (!appData) return;
-  const active = appData.activeBudget;
-  const el = document.getElementById('budget-content');
-
-  if (!active) {
-    el.innerHTML = `<div class="empty">No active budget found.<br>Set up your first period below.</div>
-      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="openPeriodModal(null)">Set Up Period</button>`;
-    return;
-  }
-
-  const overrides = active.overrides_json || {};
-  const calculatedBills = calcBills(appData.regularPayments, active.period_start, active.period_end, overrides);
-  const oneoffs = active.oneoff_json || [];
-  budgetBills = calculatedBills;
-  const summary = calcSummary(calculatedBills, oneoffs, active.income);
-  const spaceOrder = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
-
-  let html = '';
-  html += `<div class="date-bar"><div class="dates"><span>${fmtDate(active.period_start)}</span><span class="arrow">→</span><span>${fmtDate(active.period_end)}</span></div><button class="btn-ghost" onclick="openPeriodModal(${JSON.stringify(active).split('"').join('&quot;')})">Edit</button></div>`;
-  html += `<div class="income-card"><div class="ic-left"><div class="label">Income</div><div class="value"><span>£</span>${Number(active.income).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div><button class="btn-ghost" onclick="openPeriodModal(null,'income')">Edit</button></div>`;
-
-  html += `<div class="section-label">Bills This Period</div><div class="card">`;
-  html += `<div class="bills-subheading" style="border-top:none;padding-top:0">Regular Bills</div>`;
-
-  const grouped = {};
-  calculatedBills.forEach(b => { if (!grouped[b.space]) grouped[b.space] = []; grouped[b.space].push(b); });
-
-  const excludedBills = [];
-  (appData.regularPayments || []).forEach(p => { if (overrides[p.id] && overrides[p.id].excluded) excludedBills.push(p); });
-
-  let hasBills = false;
-  spaceOrder.forEach(space => {
-    if (!grouped[space] || grouped[space].length === 0) return;
-    hasBills = true;
-    grouped[space].forEach(b => {
-      html += `<div class="bill-row"><div class="space-pip" style="background:${spaceColor(b.space)}"></div><div class="bill-info"><div class="bill-name">${b.name}</div><div class="bill-meta">${b.bank} · ${b.pay_from}</div></div><div class="bill-amounts"><div class="amt">${fmt(b.amount)}</div>${b.variation > 0 ? `<div class="var">±${fmt(b.variation)}</div>` : ''}</div><button class="bill-edit-btn" onclick='openBudgetBillModal(${JSON.stringify(b)})'>Edit</button></div>`;
-    });
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
   });
 
-  excludedBills.forEach(p => {
-    hasBills = true;
-    html += `<div class="bill-row" style="opacity:0.45"><div class="space-pip" style="background:${spaceColor(p.space)}"></div><div class="bill-info"><div class="bill-name" style="text-decoration:line-through">${p.name}</div><div class="bill-meta">Removed from this period</div></div><div class="bill-amounts"><div class="amt" style="text-decoration:line-through">${fmt(p.amount)}</div></div><button class="bill-edit-btn" onclick="restoreBillToPeriod(${p.id})">Restore</button></div>`;
+  // Confirm dialog OK button
+  document.getElementById('confirm-ok').addEventListener('click', () => {
+    if (pendingConfirm) { pendingConfirm(); pendingConfirm = null; }
+    closeConfirm();
   });
-
-  if (!hasBills) html += `<div style="padding:10px 0 4px;color:var(--muted);font-size:14px">No regular bills for this period</div>`;
-
-  html += `<div class="bills-subheading">One-Off Payments</div>`;
-  if (oneoffs.length > 0) {
-    oneoffs.forEach((b, idx) => {
-      html += `<div class="bill-row"><div class="space-pip" style="background:var(--accent)"></div><div class="bill-info"><div class="bill-name">${b.name}</div><div class="bill-meta">${b.account||''} · ${b.pay_from||''}</div></div><div class="bill-amounts"><div class="amt">${fmt(b.amount)}</div>${b.variation > 0 ? `<div class="var">±${fmt(b.variation)}</div>` : ''}</div><button class="bill-edit-btn" onclick='openOneOffModal(${idx})'>Edit</button></div>`;
-    });
-  }
-  html += `<button onclick="openOneOffModal()" style="width:100%;margin-top:10px;background:var(--surface2);border:1px dashed var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:14px;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;">+ Add One-Off Payment</button>`;
-  html += '</div>';
-
-  html += `<div class="section-label">Accounts</div>`;
-  Object.entries(summary.accountTotals).forEach(([bank, totals]) => {
-    const logo = bankLogos[bank] || `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 11h18"/><path d="M7 3h10l2 4H5l2-4z"/></svg>`;
-    html += `<div class="acc-card ${accountColor(bank)}"><div class="acc-left"><div class="acc-logo">${logo}</div><div><div class="acc-name">${bank}</div></div></div><div class="acc-right"><div class="acc-main">${fmt(totals.amount)}</div><div class="acc-var">with var: ${fmt(totals.withVar)}</div></div></div>`;
-  });
-
-  html += `<div class="section-label">Pots & Spaces</div><div class="card">`;
-  spaceOrder.forEach(space => {
-    const pot = summary.pots[space];
-    if (!pot || pot.amount === 0) return;
-    html += `<div class="pot-row"><div class="pot-bar" style="background:${spaceColor(space)}"></div><div class="pot-info"><div class="pot-name">${space}</div><div class="pot-bank">${pot.bank}</div></div><div class="pot-amounts"><div class="pot-main">${fmt(pot.amount)}</div><div class="pot-var">+var: ${fmt(pot.withVar)}</div></div></div>`;
-  });
-  html += '</div>';
-
-  const loClass = summary.leftOver < 0 ? 'neg' : 'pos';
-  const loVarClass = summary.leftOverWithVar < 0 ? 'neg' : 'pos';
-  const mt = getMonthType(summary.leftOver);
-  const mtVar = getMonthType(summary.leftOverWithVar);
-  html += `<div class="section-label">Totals</div><div class="card"><div class="totals-grid"><div class="total-cell"><div class="tc-label">Pot Totals</div><div class="tc-val">${fmt(summary.potTotal)}</div></div><div class="total-cell"><div class="tc-label">With Variation</div><div class="tc-val">${fmt(summary.potTotalWithVar)}</div></div><div class="total-cell"><div class="tc-label">Left Over</div><div class="tc-val ${loClass}">${fmtSigned(summary.leftOver)}</div></div><div class="total-cell"><div class="tc-label">With Variation</div><div class="tc-val ${loVarClass}">${fmtSigned(summary.leftOverWithVar)}</div></div></div><div class="month-type-row"><div class="mt-badge ${mt}">${mt}</div><div class="mt-badge ${mtVar}">${mtVar} (w/ var)</div></div></div>`;
-
-  el.innerHTML = html;
-}
-
-// ============================================================
-// PERIOD MODAL
-// ============================================================
-function openPeriodModal(active) {
-  if (active && typeof active === 'string') { try { active = JSON.parse(active.replace(/&quot;/g, '"')); } catch(e) {} }
-  const a = active || appData.activeBudget;
-  document.getElementById('date-start').value = a ? fmtDateInput(a.period_start) : '';
-  document.getElementById('date-end').value = a ? fmtDateInput(a.period_end) : '';
-  document.getElementById('date-income').value = a ? a.income : (appData.defaults.find(d=>d.name==='Income')||{default_value:0}).default_value;
-  openModal('modal-dates');
-}
-
-async function savePeriod() {
-  const start = document.getElementById('date-start').value;
-  const end = document.getElementById('date-end').value;
-  const income = parseFloat(document.getElementById('date-income').value) || 0;
-  if (!start || !end) { showToast('Please fill in both dates', 'error'); return; }
-  closeModal('modal-dates');
-  const active = appData.activeBudget || {};
-  const budget = { period_start: start, period_end: end, income, bills_json: active.bills_json || [], oneoff_json: active.oneoff_json || [], overrides_json: active.overrides_json || {} };
-  const r = await api('POST', '/api/budget', budget);
-  if (r && r.success) {
-    if (appData.activeBudget) { appData.activeBudget.period_start = start; appData.activeBudget.period_end = end; appData.activeBudget.income = income; }
-    else appData.activeBudget = budget;
-    renderBudget(); showToast('Period saved!', 'success');
-  }
-}
-
-// ============================================================
-// BUDGET BILL OVERRIDE MODAL
-// ============================================================
-function openBudgetBillModal(bill) {
-  if (typeof bill === 'string') bill = JSON.parse(bill);
-  document.getElementById('bb-modal-title').textContent = bill.name || 'Edit for This Period';
-  document.getElementById('bb-payment-id').value = bill.payment_id;
-  document.getElementById('bb-amount').value = bill.amount;
-  document.getElementById('bb-variation').value = bill.variation;
-  const spaceEl = document.getElementById('bb-space');
-  spaceEl.innerHTML = '';
-  (appData.accountPartitions || []).map(p => p.partition_name).forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s; opt.textContent = s;
-    if (s === bill.space) opt.selected = true;
-    spaceEl.appendChild(opt);
-  });
-  openModal('modal-budget-bill');
-}
-
-async function saveBudgetBillOverride() {
-  const id = document.getElementById('bb-payment-id').value;
-  const amount = parseFloat(document.getElementById('bb-amount').value) || 0;
-  const variation = parseFloat(document.getElementById('bb-variation').value) || 0;
-  const space = document.getElementById('bb-space').value;
-  const active = appData.activeBudget;
-  if (!active.overrides_json) active.overrides_json = {};
-  active.overrides_json[id] = { amount, variation, space };
-  closeModal('modal-budget-bill');
-  await saveActiveBudgetState(() => renderBudget());
-}
-
-async function removeBillFromBudget() {
-  const id = document.getElementById('bb-payment-id').value;
-  const active = appData.activeBudget;
-  if (!active.overrides_json) active.overrides_json = {};
-  active.overrides_json[id] = { excluded: true };
-  closeModal('modal-budget-bill');
-  await saveActiveBudgetState(() => renderBudget());
-}
-
-async function restoreBillToPeriod(id) {
-  const active = appData.activeBudget;
-  if (!active.overrides_json) return;
-  delete active.overrides_json[id];
-  await saveActiveBudgetState(() => renderBudget());
-  showToast('Bill restored to period', 'success');
-}
-
-// ============================================================
-// ONE-OFF MODAL
-// ============================================================
-function openOneOffModal(idx) {
-  const deleteBtn = document.getElementById('btn-delete-oneoff');
-  populateSelect('oneoff-account', (appData.accounts||[]).map(a=>({value:a.bank,label:a.bank})));
-  populateSelect('oneoff-space', (appData.accountPartitions||[]).map(p=>({value:p.partition_name,label:p.partition_name})));
-  populateSelect('oneoff-card', (appData.cards||[]).map(c=>({value:c.card_name,label:c.card_name})));
-  if (idx !== undefined && idx !== null) {
-    const oneoff = (appData.activeBudget.oneoff_json||[])[idx];
-    document.getElementById('modal-oneoff-title').textContent = 'Edit One-Off';
-    document.getElementById('oneoff-idx').value = idx;
-    document.getElementById('oneoff-name').value = oneoff.name || '';
-    document.getElementById('oneoff-amount').value = oneoff.amount || '';
-    document.getElementById('oneoff-variation').value = oneoff.variation || 0;
-    document.getElementById('oneoff-type').value = oneoff.type || 'Manual';
-    document.getElementById('oneoff-account').value = oneoff.account || '';
-    document.getElementById('oneoff-space').value = oneoff.space || '';
-    document.getElementById('oneoff-card').value = oneoff.pay_from || '';
-    deleteBtn.style.display = 'block';
-  } else {
-    document.getElementById('modal-oneoff-title').textContent = 'Add One-Off';
-    document.getElementById('oneoff-idx').value = '';
-    document.getElementById('oneoff-name').value = '';
-    document.getElementById('oneoff-amount').value = '';
-    document.getElementById('oneoff-variation').value = 0;
-    document.getElementById('oneoff-type').value = 'Manual';
-    deleteBtn.style.display = 'none';
-  }
-  openModal('modal-oneoff');
-}
-
-async function saveOneOff() {
-  const idx = document.getElementById('oneoff-idx').value;
-  const oneoff = {
-    name: document.getElementById('oneoff-name').value,
-    amount: parseFloat(document.getElementById('oneoff-amount').value) || 0,
-    variation: parseFloat(document.getElementById('oneoff-variation').value) || 0,
-    type: document.getElementById('oneoff-type').value,
-    account: document.getElementById('oneoff-account').value,
-    bank: document.getElementById('oneoff-account').value,
-    space: document.getElementById('oneoff-space').value,
-    pay_from: document.getElementById('oneoff-card').value,
-    is_one_off: true
-  };
-  const active = appData.activeBudget;
-  if (!active.oneoff_json) active.oneoff_json = [];
-  if (idx !== '') active.oneoff_json[parseInt(idx)] = oneoff;
-  else active.oneoff_json.push(oneoff);
-  closeModal('modal-oneoff');
-  await saveActiveBudgetState(() => renderBudget());
-}
-
-async function deleteOneOff() {
-  const idx = parseInt(document.getElementById('oneoff-idx').value);
-  appData.activeBudget.oneoff_json.splice(idx, 1);
-  closeModal('modal-oneoff');
-  await saveActiveBudgetState(() => renderBudget());
-}
-
-// ============================================================
-// SAVE & CREATE NEW
-// ============================================================
-function openSaveModal() {
-  const active = appData.activeBudget;
-  if (!active) { showToast('No active budget to save', 'error'); return; }
-  const start = active.period_start ? fmtDateShort(active.period_start) : '';
-  const end   = active.period_end   ? fmtDateShort(active.period_end)   : '';
-  document.getElementById('save-name').value = (start && end) ? `${start} – ${end}` : '';
-  document.getElementById('save-note').value = '';
-  openModal('modal-save');
-}
-
-async function saveAndProceedToNew() {
-  const active = appData.activeBudget;
-  if (!active) return;
-  const name = document.getElementById('save-name').value.trim();
-  const note = document.getElementById('save-note').value.trim();
-  showToast('Saving budget...', '');
-  closeModal('modal-save');
-  const overrides = active.overrides_json || {};
-  const calculatedBills = calcBills(appData.regularPayments, active.period_start, active.period_end, overrides);
-  const snapshotBudget = { ...active, bills_json: calculatedBills, name, note };
-  const r = await api('POST', '/api/history', snapshotBudget);
-  if (r && r.success) { historyData = null; showToast('Budget saved!', 'success'); openNewBudgetSetup(); }
-  else showToast('Error saving budget', 'error');
-}
-
-function openNewBudgetSetup() {
-  const today = new Date();
-  const plus30 = new Date(today); plus30.setDate(today.getDate() + 30);
-  const fmt2 = d => d.toISOString().slice(0, 10);
-  document.getElementById('new-start').value = fmt2(today);
-  document.getElementById('new-end').value = fmt2(plus30);
-  document.getElementById('new-income').value = '3550';
-  openModal('modal-new-budget');
-}
-
-async function confirmNewBudget() {
-  const start  = document.getElementById('new-start').value;
-  const end    = document.getElementById('new-end').value;
-  const income = parseFloat(document.getElementById('new-income').value) || 3550;
-  if (!start || !end) { showToast('Please set both dates', 'error'); return; }
-  closeModal('modal-new-budget');
-  showToast('Starting new budget...', '');
-  const freshBills = calcBills(appData.regularPayments || [], start, end, {});
-  const freshBudget = { period_start: start, period_end: end, income, bills_json: freshBills, oneoff_json: [], overrides_json: {} };
-  const r = await api('POST', '/api/budget', freshBudget);
-  if (r && r.success) { appData.activeBudget = freshBudget; renderBudget(); showToast('New budget ready!', 'success'); }
-}
-
-// ============================================================
-// HISTORY
-// ============================================================
-async function loadHistory() {
-  document.getElementById('history-content').innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-  const data = await api('GET', '/api/history');
-  if (!data) return;
-  historyData = data;
-  renderHistory();
-}
-
-function renderHistory() {
-  const el = document.getElementById('history-content');
-  if (!historyData || historyData.length === 0) { el.innerHTML = '<div class="empty">No budgets saved yet.<br>Tap "Save Budget" from the Budget tab.</div>'; return; }
-  const spaceOrder = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
-  let html = '';
-  historyData.forEach((budget, idx) => {
-    const bills = budget.bills_json || [];
-    const oneoffs = budget.oneoff_json || [];
-    const allBills = [...bills, ...oneoffs];
-    const total = allBills.reduce((s, b) => s + (Number(b.amount)||0), 0);
-    const totalWithVar = allBills.reduce((s, b) => s + (Number(b.amount)||0) + (Number(b.variation)||0), 0);
-    const leftOver = (Number(budget.income)||0) - total;
-    const leftOverWithVar = (Number(budget.income)||0) - totalWithVar;
-    const mt = getMonthType(leftOver); const mtVar = getMonthType(leftOverWithVar);
-    const loClass = leftOver < 0 ? 'neg' : 'pos';
-    const loVarClass = leftOverWithVar < 0 ? 'neg' : 'pos';
-    const pots = {};
-    allBills.forEach(b => { const s = b.space||'Misc'; if (!pots[s]) pots[s]=0; pots[s]+=Number(b.amount)||0; });
-    const displayTitle = budget.name || `${fmtDate(budget.period_start)} → ${fmtDate(budget.period_end)}`;
-    html += `<div class="history-item">
-      <div class="history-header" onclick="toggleHistory(${idx})">
-        <div style="flex:1;min-width:0">
-          <div class="history-dates">${displayTitle}</div>
-          <div class="history-meta">${budget.name ? `${fmtDate(budget.period_start)} → ${fmtDate(budget.period_end)} · ` : ''}Saved ${budget.snapshot_date} · ${fmt(budget.income)}</div>
-          ${budget.note ? `<div style="font-size:12px;color:var(--text2);margin-top:4px;font-style:italic">"${budget.note}"</div>` : ''}
-        </div>
-        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
-          <button class="history-action-btn edit" data-id="${budget.id}" data-name="${(budget.name||'').replace(/"/g,'&quot;')}" data-note="${(budget.note||'').replace(/"/g,'&quot;')}" onclick="openEditHistoryModal(this)" title="Edit">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="history-action-btn delete" onclick="deleteHistory(${budget.id})" title="Delete">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-          </button>
-          <span class="history-chevron" id="hc-${idx}" style="margin-left:4px">▼</span>
-        </div>
-      </div>
-      <div class="history-body" id="hb-${idx}">
-        <div class="history-summary">
-          <div class="hs-cell"><div class="hs-label">Pot Totals</div><div class="hs-val">${fmt(total)}</div></div>
-          <div class="hs-cell"><div class="hs-label">With Variation</div><div class="hs-val">${fmt(totalWithVar)}</div></div>
-          <div class="hs-cell"><div class="hs-label">Left Over</div><div class="hs-val ${loClass}">${fmtSigned(leftOver)}</div></div>
-          <div class="hs-cell"><div class="hs-label">With Variation</div><div class="hs-val ${loVarClass}">${fmtSigned(leftOverWithVar)}</div></div>
-        </div>
-        <div class="history-summary" style="border-bottom:none;padding-bottom:0">
-          <div class="hs-cell" style="grid-column:span 2;display:flex;gap:8px;background:none;padding:8px 0 0">
-            <div class="mt-badge ${mt}" style="flex:1">${mt}</div>
-            <div class="mt-badge ${mtVar}" style="flex:1">${mtVar} (w/ var)</div>
-          </div>
-        </div>
-        <div class="history-bills">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 8px">
-            <span class="section-label" style="margin:0">Bills Breakdown</span>
-            <button class="btn btn-danger btn-sm" onclick="deleteHistory(${budget.id})">Delete</button>
-          </div>`;
-    spaceOrder.forEach(space => {
-      if (!pots[space]) return;
-      html += `<div class="pot-row" style="padding:8px 0"><div class="pot-bar" style="background:${spaceColor(space)}"></div><div class="pot-info"><div class="pot-name">${space}</div></div><div class="pot-amounts"><div class="pot-main">${fmt(pots[space])}</div></div></div>`;
-    });
-    html += `<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">`;
-    allBills.forEach(b => {
-      html += `<div class="bill-row"><div class="space-pip" style="background:${spaceColor(b.space)}"></div><div class="bill-info"><div class="bill-name">${b.name}${b.is_one_off ? ' <span class="badge oneoff">one-off</span>' : ''}</div><div class="bill-meta">${b.bank||''} · ${b.pay_from||''}</div></div><div class="bill-amounts"><div class="amt">${fmt(b.amount)}</div></div></div>`;
-    });
-    html += `</div></div></div></div>`;
-  });
-  el.innerHTML = html;
-}
-
-function toggleHistory(idx) {
-  const body = document.getElementById('hb-' + idx);
-  const chevron = document.getElementById('hc-' + idx);
-  const isOpen = body.classList.toggle('open');
-  chevron.classList.toggle('open', isOpen);
-}
-
-async function deleteHistory(id) {
-  showConfirm('Delete Budget?', 'This will permanently remove this saved budget.', async () => {
-    await api('DELETE', '/api/history/' + id);
-    loadHistory(); showToast('Budget deleted', 'success');
-  });
-}
-
-function openEditHistoryModal(btn) {
-  document.getElementById('edit-history-id').value = btn.dataset.id;
-  document.getElementById('edit-history-name').value = btn.dataset.name || '';
-  document.getElementById('edit-history-note').value = btn.dataset.note || '';
-  openModal('modal-edit-history');
-}
-
-async function saveHistoryMeta() {
-  const id = document.getElementById('edit-history-id').value;
-  const name = document.getElementById('edit-history-name').value.trim();
-  const note = document.getElementById('edit-history-note').value.trim();
-  closeModal('modal-edit-history');
-  showToast('Saving...', '');
-  const r = await api('PUT', '/api/history', { id, name, note });
-  if (r && r.success) { loadHistory(); showToast('Updated!', 'success'); }
-}
-
-// ============================================================
-// BILLS PAGE
-// ============================================================
-function setBillsTab(filter) {
-  billsFilter = filter;
-  document.querySelectorAll('.pill-tab').forEach((t, i) => { t.classList.toggle('active', ['all','monthly','weekly','other'][i] === filter); });
-  renderBills();
-}
-
-function renderBills() {
-  if (!appData) return;
-  const el = document.getElementById('bills-content');
-  let payments = appData.regularPayments || [];
-  if (billsFilter === 'monthly') payments = payments.filter(p => p.schedule === 'Monthly');
-  else if (billsFilter === 'weekly') payments = payments.filter(p => p.schedule === 'Weekly');
-  else if (billsFilter === 'other') payments = payments.filter(p => !['Monthly','Weekly'].includes(p.schedule));
-
-  if (payments.length === 0) { el.innerHTML = '<div class="empty">No bills found.</div>'; return; }
-
-  const active = payments.filter(p => p.status === 'Active');
-  const inactive = payments.filter(p => p.status !== 'Active');
-
-  let html = '';
-  if (active.length > 0) {
-    html += '<div class="section-label">Active</div><div class="card">';
-    active.forEach(p => { html += billRow(p); });
-    html += '</div>';
-  }
-  if (inactive.length > 0) {
-    html += '<div class="section-label">Inactive / Cancelled</div><div class="card">';
-    inactive.forEach(p => { html += billRow(p); });
-    html += '</div>';
-  }
-  el.innerHTML = html;
-}
-
-function billRow(p) {
-  return `<div class="manage-row">
-    <div class="space-pip" style="background:${spaceColor(p.space)}"></div>
-    <div class="manage-info">
-      <div class="manage-name">${p.name}</div>
-      <div class="manage-meta">${p.schedule} · ${p.date||'–'} · <span class="badge ${p.status}">${p.status}</span></div>
-    </div>
-    <div class="manage-right">
-      <div class="manage-amount">${fmt(p.amount)}</div>
-      ${p.variation > 0 ? `<div class="manage-amount-var">±${fmt(p.variation)}</div>` : ''}
-    </div>
-    <button class="bill-edit-btn" onclick='openBillModal(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Edit</button>
-  </div>`;
-}
-
-function openBillModal(payment) {
-  if (typeof payment === 'string') payment = JSON.parse(payment);
-  const isEdit = !!payment;
-  document.getElementById('modal-bill-title').textContent = isEdit ? 'Edit Bill' : 'Add Bill';
-  document.getElementById('bill-id').value = isEdit ? payment.id : '';
-  document.getElementById('bill-name').value = isEdit ? payment.name : '';
-  document.getElementById('bill-schedule').value = isEdit ? payment.schedule : 'Monthly';
-  document.getElementById('bill-date').value = isEdit ? (payment.date||'') : '';
-  document.getElementById('bill-status').value = isEdit ? payment.status : 'Active';
-  document.getElementById('bill-amount').value = isEdit ? payment.amount : '';
-  document.getElementById('bill-variation').value = isEdit ? payment.variation : 0;
-  document.getElementById('bill-type').value = isEdit ? payment.type : 'Auto';
-  document.getElementById('bill-importance').value = isEdit ? payment.importance : 'Mandatory';
-  populateSelect('bill-partition', (appData.accountPartitions||[]).map(p=>({value:p.id,label:p.partition_name})), isEdit ? payment.account_partition_id : '');
-  document.getElementById('btn-delete-bill').style.display = isEdit ? 'block' : 'none';
-  openModal('modal-bill');
-}
-
-async function saveRegPayment() {
-  const payment = {
-    id: document.getElementById('bill-id').value || null,
-    name: document.getElementById('bill-name').value,
-    schedule: document.getElementById('bill-schedule').value,
-    date: document.getElementById('bill-date').value,
-    amount: parseFloat(document.getElementById('bill-amount').value) || 0,
-    variation: parseFloat(document.getElementById('bill-variation').value) || 0,
-    status: document.getElementById('bill-status').value,
-    type: document.getElementById('bill-type').value,
-    importance: document.getElementById('bill-importance').value,
-    account_partition_id: document.getElementById('bill-partition').value
-  };
-
-  closeModal('modal-bill');
-  showToast('Saving...', '');
-
-  const r = await api('POST', '/api/payments', payment);
-  if (!r || !r.success) { showToast('Save failed', 'error'); return; }
-
-  const data = await api('GET', '/api/data');
-  if (!data) return;
-  appData = data;
-
-  const active = appData.activeBudget;
-  if (active && active.period_start && active.period_end && payment.status === 'Active') {
-    const overrides = active.overrides_json || {};
-    const freshBills = calcBills(appData.regularPayments, active.period_start, active.period_end, overrides);
-    const updatedBudget = { ...active, bills_json: freshBills };
-    await api('POST', '/api/budget', updatedBudget);
-    appData.activeBudget = updatedBudget;
-    showToast('Bill saved & budget updated!', 'success');
-  } else {
-    showToast('Bill saved!', 'success');
-  }
-
-  renderBudget();
-  if (currentPage === 'bills') renderBills();
-}
-
-async function deleteRegPayment() {
-  const id = document.getElementById('bill-id').value;
-  showConfirm('Delete Bill?', 'This will permanently remove this bill from Regular Bills.', async () => {
-    closeModal('modal-bill');
-    await api('DELETE', '/api/payments/' + id);
-    loadAllData(); showToast('Bill deleted', 'success');
-  });
-}
-
-// ============================================================
-// SETTINGS SUB PAGES
-// ============================================================
-function renderPartitions() {
-  if (!appData) return;
-  const el = document.getElementById('partitions-content');
-  const partitions = appData.accountPartitions || [];
-  if (partitions.length === 0) { el.innerHTML = '<div class="empty">No spaces yet. Tap + to add.</div>'; return; }
-  let html = '<div class="card">';
-  partitions.forEach(p => {
-    html += `<div class="manage-row"><div class="space-pip" style="background:${spaceColor(p.partition_name)}"></div><div class="manage-info"><div class="manage-name">${p.partition_name}</div><div class="manage-meta">${p.bank} · ${p.status}</div></div><button class="bill-edit-btn" onclick='openPartitionModal(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Edit</button></div>`;
-  });
-  html += '</div>';
-  el.innerHTML = html;
-}
-
-function renderAccounts() {
-  if (!appData) return;
-  const el = document.getElementById('accounts-content');
-  const accounts = appData.accounts || [];
-  if (accounts.length === 0) { el.innerHTML = '<div class="empty">No accounts yet. Tap + to add.</div>'; return; }
-  let html = '<div class="card">';
-  accounts.forEach(a => {
-    const logo = bankLogos[a.bank] || `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 11h18M7 3h10l2 4H5l2-4z"/></svg>`;
-    const logoStyle = a.bank === 'Starling' ? 'background:#6935d3;padding:5px;' : a.bank === 'Monzo' ? 'background:transparent;padding:3px;' : 'background:rgba(255,255,255,0.08);padding:5px;';
-    html += `<div class="manage-row"><div style="width:46px;height:46px;border-radius:13px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;${logoStyle}">${logo}</div><div class="manage-info" style="flex:1;margin-left:14px"><div class="manage-name" style="font-size:17px;font-weight:700">${a.bank}</div></div><button class="bill-edit-btn" onclick='openAccountModal(${JSON.stringify(a).replace(/'/g,"&#39;")})'>Edit</button></div>`;
-  });
-  html += '</div>';
-  el.innerHTML = html;
-}
-
-function renderCards() {
-  if (!appData) return;
-  const el = document.getElementById('cards-content');
-  const cards = appData.cards || [];
-  if (cards.length === 0) { el.innerHTML = '<div class="empty">No cards yet. Tap + to add.</div>'; return; }
-  let html = '<div class="card">';
-  cards.forEach(c => {
-    const account = (appData.accounts||[]).find(a => a.id == c.account_id);
-    html += `<div class="manage-row"><div class="manage-info"><div class="manage-name">${c.card_name}</div><div class="manage-meta">${account ? account.bank : ''}</div></div><button class="bill-edit-btn" onclick='openCardModal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Edit</button></div>`;
-  });
-  html += '</div>';
-  el.innerHTML = html;
-}
-
-function openPartitionModal(partition) {
-  if (typeof partition === 'string') partition = JSON.parse(partition);
-  const isEdit = !!partition;
-  document.getElementById('modal-partition-title').textContent = isEdit ? 'Edit Space' : 'Add Space';
-  document.getElementById('partition-id').value = isEdit ? partition.id : '';
-  document.getElementById('partition-name').value = isEdit ? partition.partition_name : '';
-  document.getElementById('partition-status').value = isEdit ? partition.status : 'Active';
-  populateSelect('partition-bank', (appData.accounts||[]).map(a=>({value:a.bank,label:a.bank})), isEdit ? partition.bank : '');
-  populateSelect('partition-card', (appData.cards||[]).map(c=>({value:c.id,label:c.card_name})), isEdit ? partition.cards_id : '');
-  document.getElementById('btn-delete-partition').style.display = isEdit ? 'block' : 'none';
-  openModal('modal-partition');
-}
-
-async function savePartition() {
-  const partition = { id: document.getElementById('partition-id').value||null, partition_name: document.getElementById('partition-name').value, bank: document.getElementById('partition-bank').value, cards_id: document.getElementById('partition-card').value, status: document.getElementById('partition-status').value };
-  closeModal('modal-partition');
-  await api('POST', '/api/partitions', partition);
-  loadAllData(); showToast('Space saved!', 'success');
-}
-
-async function deletePartition() {
-  const id = document.getElementById('partition-id').value;
-  showConfirm('Delete Space?', 'This will remove this space/pot.', async () => {
-    closeModal('modal-partition');
-    await api('DELETE', '/api/partitions/' + id);
-    loadAllData(); showToast('Space deleted', 'success');
-  });
-}
-
-function openAccountModal(account) {
-  if (typeof account === 'string') account = JSON.parse(account);
-  const isEdit = !!account;
-  document.getElementById('modal-account-title').textContent = isEdit ? 'Edit Account' : 'Add Account';
-  document.getElementById('account-id').value = isEdit ? account.id : '';
-  document.getElementById('account-bank').value = isEdit ? account.bank : '';
-  document.getElementById('btn-delete-account').style.display = isEdit ? 'block' : 'none';
-  openModal('modal-account');
-}
-
-async function saveAccountItem() {
-  const account = { id: document.getElementById('account-id').value||null, bank: document.getElementById('account-bank').value };
-  closeModal('modal-account');
-  await api('POST', '/api/accounts', account);
-  loadAllData(); showToast('Account saved!', 'success');
-}
-
-async function deleteAccountItem() {
-  const id = document.getElementById('account-id').value;
-  showConfirm('Delete Account?', 'This will remove this bank account.', async () => {
-    closeModal('modal-account');
-    await api('DELETE', '/api/accounts/' + id);
-    loadAllData(); showToast('Account deleted', 'success');
-  });
-}
-
-function openCardModal(card) {
-  if (typeof card === 'string') card = JSON.parse(card);
-  const isEdit = !!card;
-  document.getElementById('modal-card-title').textContent = isEdit ? 'Edit Card' : 'Add Card';
-  document.getElementById('card-id').value = isEdit ? card.id : '';
-  document.getElementById('card-name').value = isEdit ? card.card_name : '';
-  populateSelect('card-account', (appData.accounts||[]).map(a=>({value:a.id,label:a.bank})), isEdit ? card.account_id : '');
-  populateSelect('card-partition', (appData.accountPartitions||[]).map(p=>({value:p.id,label:p.partition_name})), isEdit ? card.account_partition_id : '');
-  document.getElementById('btn-delete-card').style.display = isEdit ? 'block' : 'none';
-  openModal('modal-card');
-}
-
-async function saveCardItem() {
-  const card = { id: document.getElementById('card-id').value||null, card_name: document.getElementById('card-name').value, account_id: document.getElementById('card-account').value, account_partition_id: document.getElementById('card-partition').value };
-  closeModal('modal-card');
-  await api('POST', '/api/cards', card);
-  loadAllData(); showToast('Card saved!', 'success');
-}
-
-async function deleteCardItem() {
-  const id = document.getElementById('card-id').value;
-  showConfirm('Delete Card?', 'This will remove this card.', async () => {
-    closeModal('modal-card');
-    await api('DELETE', '/api/cards/' + id);
-    loadAllData(); showToast('Card deleted', 'success');
-  });
-}
-
-// ============================================================
-// HELPERS
-// ============================================================
-async function saveActiveBudgetState(callback) {
-  const active = appData.activeBudget;
-  const r = await api('POST', '/api/budget', active);
-  if (r && r.success) { if (callback) callback(); showToast('Saved!', 'success'); }
-  else showToast('Save failed', 'error');
-}
-
-function populateSelect(id, options, selected) {
-  const el = document.getElementById(id);
-  el.innerHTML = '';
-  options.forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt.value; o.textContent = opt.label;
-    if (String(opt.value) === String(selected)) o.selected = true;
-    el.appendChild(o);
-  });
-}
-
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-});
-
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast ' + (type||''); t.classList.add('show');
-  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function showConfirm(title, msg, onOk) {
-  document.getElementById('confirm-title').textContent = title;
-  document.getElementById('confirm-msg').textContent = msg;
-  pendingConfirm = onOk;
-  document.getElementById('confirm-dialog').classList.add('open');
-}
-
-function closeConfirm() { document.getElementById('confirm-dialog').classList.remove('open'); pendingConfirm = null; }
-
-document.getElementById('confirm-ok').addEventListener('click', () => {
-  if (pendingConfirm) { pendingConfirm(); pendingConfirm = null; }
-  closeConfirm();
-});
 </script>
+
 </body>
 </html>
