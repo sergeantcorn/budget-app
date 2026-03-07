@@ -44,7 +44,6 @@ function doLogout() {
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display          = 'block';
-  loadVersion();
   loadAllData();
 }
 
@@ -56,5 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', () => {
+  loadVersion();
   if (authToken) showApp();
 });
