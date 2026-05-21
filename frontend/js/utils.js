@@ -29,12 +29,12 @@ function fmtDateShort(d) {
 
 function spaceColor(space) {
   return {
-    Bills:         'var(--c-bills)',
-    Groceries:     'var(--c-groceries)',
-    Subscriptions: 'var(--c-subscriptions)',
-    Savings:       'var(--c-savings)',
-    Adhoc:         'var(--c-adhoc)',
-    Misc:          'var(--c-misc)'
+    'Bills':         'var(--c-bills)',
+    'Groceries':     'var(--c-groceries)',
+    'Secondary Bills': 'var(--c-secondary-bills)',
+    'Savings':       'var(--c-savings)',
+    'Adhoc':         'var(--c-adhoc)',
+    'Misc':          'var(--c-misc)'
   }[space] || 'var(--muted)';
 }
 
