@@ -19,7 +19,7 @@ function renderBudget() {
   const oneoffs          = active.oneoff_json || [];
   budgetBills            = calculatedBills;
   const summary          = calcSummary(calculatedBills, oneoffs, active.income);
-  const spaceOrder       = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
+  const spaceOrder       = ['Bills','Groceries','Secondary Bills','Savings','Adhoc','Misc'];
 
   let html = '';
 
