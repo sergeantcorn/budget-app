@@ -17,7 +17,7 @@ function renderHistory() {
     return;
   }
 
-  const spaceOrder = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
+  const spaceOrder = ['Bills','Groceries','Secondary Bills','Savings','Adhoc','Misc'];
   let html = '';
 
   historyData.forEach((budget, idx) => {
