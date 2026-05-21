@@ -160,7 +160,7 @@ function calcSummary(bills, oneoffs, income) {
   const allBills   = [...bills, ...oneoffs];
   const partitions = appData ? appData.accountPartitions : [];
   const accounts   = appData ? appData.accounts : [];
-  const spaceOrder = ['Bills','Groceries','Subscriptions','Savings','Adhoc','Misc'];
+  const spaceOrder = ['Bills','Groceries','Secondary Bills','Savings','Adhoc','Misc'];
 
   const pots = {};
   spaceOrder.forEach(s => { pots[s] = { amount: 0, withVar: 0, bank: '' }; });
